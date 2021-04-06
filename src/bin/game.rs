@@ -1,28 +1,27 @@
 
-use connect::connect::*;
-mod connect;
+use connect4::connect::connect::*;
 
 fn main() {
     let mut b: Board = Board::new();
     b.print();
-    let mut gameDone = false;
-    let mut currentPlayer: Player = Player::BLACK;
-    while !gameDone {
-        print!("{} players turn", currentPlayer);
+    let mut game_done: bool = false;
+    let mut current_player: Player = Player::BLACK;
+    while !game_done {
+        print!("{} players turn", current_player);
         print!("Insert token between 0-7: ");
         let s = get_input();
         match s.parse::<u32>() {
             Ok(column) => {
                 if column < COL_COUNT as u32 {
-                    match b.insert(currentPlayer, column) {
+                    match b.insert(current_player, column) {
                         Ok(false) => {
                             b.print();
-                            currentPlayer = !currentPlayer;
+                            current_player = !current_player;
                         }
                         Ok(true) => {
                             b.print();
-                            println!("{} won the game!", currentPlayer);
-                            gameDone = true;
+                            println!("{} won the game!", current_player);
+                            game_done = true;
                         }
                         Err(_err) => {
                             println!("Could not insert into that slot")
@@ -32,7 +31,7 @@ fn main() {
                     println!("That is not a valid column");
                 }
             }
-            Err(err) => println!("Got invalid input"),
+            Err(_err) => println!("Got invalid input"),
         };
     }
 }

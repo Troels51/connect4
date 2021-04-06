@@ -6,4 +6,14 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "connect4"
+path = "src/lib.rs"
+
+[[bin]]
+name = "game"
+path = "src/bin/game.rs"
+
 [dependencies]
+csv = "1.1"
+serde = { version = "1", features = ["derive"] }

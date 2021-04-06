@@ -44,7 +44,7 @@ pub struct Board {
     // We count from bottom left.
     // [0][0] is bottom left. [0][7] is bottom right
     // [7][0] is top left, [7][7] is top right
-    positions: [[State; ROW_COUNT]; COL_COUNT],
+    positions: [[State; COL_COUNT]; ROW_COUNT],
 }
 pub struct BoardError;
 pub struct Position {
@@ -54,7 +54,7 @@ pub struct Position {
 impl Board {
     pub fn new() -> Board {
         Board {
-            positions: [[State::EMPTY; ROW_COUNT]; COL_COUNT],
+            positions: [[State::EMPTY; COL_COUNT]; ROW_COUNT],
         }
     }
     pub fn print(&self) {
@@ -68,20 +68,20 @@ impl Board {
         println!();
     }
     // This checks a board for a win, this could need optimization
-    pub fn checkwin(&self, latestToken: Position, player: Player) -> bool {
-        let mut winSeq = 0;
+    pub fn checkwin(&self, _latest_token: Position, player: Player) -> bool {
+        let mut win_seq = 0;
         // Horizontal check
         for c in 0..(COL_COUNT - 3) {
             for r in 0..ROW_COUNT {
                 for i in 0..4 {
                     if self.positions[r][c + i] == State::Player(player) {
-                        winSeq = winSeq + 1;
+                        win_seq = win_seq + 1;
                     }
-                    if winSeq == 4 {
+                    if win_seq == 4 {
                         return true;
                     }
                 }
-                winSeq = 0;
+                win_seq = 0;
             }
         }
         // Vertical check
@@ -89,13 +89,13 @@ impl Board {
             for r in 0..(ROW_COUNT - 3) {
                 for i in 0..4 {
                     if self.positions[r + i][c] == State::Player(player) {
-                        winSeq = winSeq + 1;
+                        win_seq = win_seq + 1;
                     }
-                    if winSeq == 4 {
+                    if win_seq == 4 {
                         return true;
                     }
                 }
-                winSeq = 0;
+                win_seq = 0;
             }
         }
         //Diagonal checks
@@ -103,26 +103,26 @@ impl Board {
             for r in 3..ROW_COUNT {
                 for i in 0..4 {
                     if self.positions[r - i][c + i] == State::Player(player) {
-                        winSeq = winSeq + 1;
+                        win_seq = win_seq + 1;
                     }
-                    if winSeq == 4 {
+                    if win_seq == 4 {
                         return true;
                     }
                 }
-                winSeq = 0;
+                win_seq = 0;
             }
         }
         for c in 0..(COL_COUNT - 3) {
             for r in 0..(ROW_COUNT - 3) {
                 for i in 0..4 {
                     if self.positions[r + i][c + i] == State::Player(player) {
-                        winSeq = winSeq + 1;
+                        win_seq = win_seq + 1;
                     }
-                    if winSeq == 4 {
+                    if win_seq == 4 {
                         return true;
                     }
                 }
-                winSeq = 0;
+                win_seq = 0;
             }
         }
         return false;
