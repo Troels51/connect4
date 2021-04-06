@@ -5,15 +5,18 @@ extern crate test;
 #[cfg(test)]
 mod tests {
 
-    use std::{error::Error, fs::File, io::{self, BufRead}, path::{Path, PathBuf}};
+    use std::{error::Error, fs::File, io::{self, BufRead}, path::{Path, PathBuf}, str::FromStr};
     use test::Bencher;
-    use connect4;
+    use connect4::{self, connect::connect::Board};
     use csv::Reader;
-    use serde::Deserialize;
+    use serde::{Deserialize, Deserializer, de::{self, Visitor}};
+    use std::fmt;
+
+
 
     #[derive(Debug, Deserialize)]
     struct Record {
-        board : String,
+        board : Board,
         score : i32,
     }
     fn test_from_file(path: PathBuf) -> Result<(), Box<dyn Error >>{
@@ -26,7 +29,9 @@ mod tests {
             Ok(mut result) => {
                 for value in result.deserialize() {
                     let record : Record = value?;
-                    println!("{:?}", record);
+                    println!("board: {}, current_player {}", record.board, record.board.current_player);
+                    let score = record.board.negamax();
+                    assert_eq!(score, record.score, "This board {} should score {} but scored {}", record.board, record.score, score);
                 }
             }
             Err(_err) => {assert!(false);}
@@ -37,7 +42,7 @@ mod tests {
     fn easy_boards_test(){
         let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_data.push("tests/benchmark_positions/Test_L3_R1");
-        test_from_file(test_data);
+        test_from_file(test_data).unwrap();
     }
     #[bench]
     fn easy_boards(b : &mut Bencher) {
