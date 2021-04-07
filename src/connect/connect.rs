@@ -168,11 +168,18 @@ impl Board {
             for dx in (-1i32..1).step_by(2) { // count continuous stones of current player on the left, then right of the played column.
                 let mut x = (column as i32) + dx;
                 let mut y = self.height[column] as i32 + dx * dy;
-                while x >= 0 && x < COL_COUNT as i32 && y >= 0 && y < ROW_COUNT as i32 && self.positions[x as usize][y as usize] == State::Player(self.current_player){
+                nb = nb + 1;
+
+                while x >= 0 
+                        && x < COL_COUNT as i32 
+                        && y >= 0 
+                        && y < ROW_COUNT as i32 
+                        && self.positions[x as usize][y as usize] == State::Player(self.current_player) {
                     x = x + dx;
                     y = y + dx * dy;
-                    nb = nb + 1;
                 }
+                println!("nb: {}", nb);
+
                 if nb >= 3 { return true }; // there is an aligment if at least 3 other stones of the current user 
             }
         }
@@ -180,6 +187,7 @@ impl Board {
     }
     pub fn play(&mut self, column: u32) -> () {
         assert!(column < COL_COUNT as u32);
+        assert!(self.height[column as usize] < ROW_COUNT as u32);
         let column = column as usize;
         self.positions[self.height[column] as usize][column as usize] = State::Player(self.current_player);
         self.height[column] = self.height[column] + 1;

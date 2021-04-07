@@ -44,6 +44,18 @@ mod tests {
         test_data.push("tests/benchmark_positions/Test_L3_R1");
         test_from_file(test_data).unwrap();
     }
+    #[test]
+    fn check_win_test() {
+        let mut b : Board = Board::from_str("2252576253462244111563365343671351441").unwrap();
+        assert!(!b.check_move_for_win(6));
+        b.print();
+        b.play(6);
+        b.print();
+        assert!(b.check_move_for_win(5));
+        b.print();
+        assert!(false);
+
+    }
     #[bench]
     fn easy_boards(b : &mut Bencher) {
         b.iter(|| 2+2);
