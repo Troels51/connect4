@@ -1,1 +1,2 @@
-pub mod connect;
+pub mod board;
+pub mod solver;

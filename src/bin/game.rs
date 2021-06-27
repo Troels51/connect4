@@ -1,8 +1,7 @@
-use connect4::connect::connect::*;
+use connect4::connect::board::{*, self};
 
 fn main() {
-    let mut b: Board = Board::new();
-    b.print();
+    let _b: board::Board = board::Board::new();
     // let mut game_done: bool = false;
     // while !game_done {
     //     print!("{} players turn", b.current_player);
@@ -35,18 +34,18 @@ fn main() {
     // }
 }
 
-fn get_input() -> String {
-    use std::io::{stdin, stdout, Write};
-    let mut s = String::new();
-    let _ = stdout().flush();
-    stdin()
-        .read_line(&mut s)
-        .expect("Did not enter a correct string");
-    if let Some('\n') = s.chars().next_back() {
-        s.pop();
-    }
-    if let Some('\r') = s.chars().next_back() {
-        s.pop();
-    }
-    s
-}
+// fn get_input() -> String {
+//     use std::io::{stdin, stdout, Write};
+//     let mut s = String::new();
+//     let _ = stdout().flush();
+//     stdin()
+//         .read_line(&mut s)
+//         .expect("Did not enter a correct string");
+//     if let Some('\n') = s.chars().next_back() {
+//         s.pop();
+//     }
+//     if let Some('\r') = s.chars().next_back() {
+//         s.pop();
+//     }
+//     s
+// }
