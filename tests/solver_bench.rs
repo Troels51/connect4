@@ -5,12 +5,10 @@ extern crate test;
 #[cfg(test)]
 mod tests {
 
-    use std::{error::Error, fs::File, io::{self, BufRead}, path::{Path, PathBuf}, str::FromStr};
+    use std::{error::Error, path::{PathBuf}};
     use test::Bencher;
     use connect4::{self, connect::{board::Board, solver::Solver}};
-    use csv::Reader;
-    use serde::{Deserialize, Deserializer, de::{self, Visitor}};
-    use std::fmt;
+    use serde::{Deserialize};
 
 
 
@@ -20,7 +18,7 @@ mod tests {
         score : i32,
     }
     fn test_from_file(path: PathBuf) -> Result<(), Box<dyn Error >>{
-        let mut rdr = csv::ReaderBuilder::new()
+        let rdr = csv::ReaderBuilder::new()
             .has_headers(false)
             .delimiter(b' ')
             .from_path(path);
@@ -29,7 +27,7 @@ mod tests {
                 for value in result.deserialize() {
                     let mut solver : Solver = Solver::new();
                     let record : Record = value?;
-                    let score = solver.solve(record.board);
+                    let (score, plays) = solver.solve(record.board);
                     assert_eq!(score, record.score, "The score should {} but scored {}, for this board {}", record.score, score, record.board);
                 }
             }
@@ -38,14 +36,25 @@ mod tests {
         return Ok(());
     }
     #[test]
-    fn easy_boards_test(){
+    fn end_easy_boards_test(){
         let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_data.push("tests/benchmark_positions/Test_L3_R1");
         test_from_file(test_data).unwrap();
     }
-
+    #[test]
+    fn middle_easy_boards_test(){
+        let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        test_data.push("tests/benchmark_positions/Test_L2_R1");
+        test_from_file(test_data).unwrap();
+    }
+    #[test]
+    fn middle_medium_boards_test(){
+        let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        test_data.push("tests/benchmark_positions/Test_L2_R2");
+        test_from_file(test_data).unwrap();
+    }
     #[bench]
     fn easy_boards(b : &mut Bencher) {
-        b.iter(|| 2+2);
+        b.iter(|| middle_easy_boards_test());
     }
 }

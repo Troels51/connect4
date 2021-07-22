@@ -1,4 +1,4 @@
-use connect4::connect::board::{*, self};
+use connect4::connect::board::{self};
 
 fn main() {
     let _b: board::Board = board::Board::new();

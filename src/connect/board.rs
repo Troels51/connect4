@@ -1,7 +1,6 @@
-use std::{fmt, io::repeat, str::FromStr};
-
+use std::{fmt, str::FromStr};
 use serde::{de, Deserialize, Deserializer};
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Player {
     RED,
     BLACK,
@@ -24,7 +23,7 @@ impl fmt::Display for Player {
         }
     }
 }
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum State {
     Player(Player),
     EMPTY,
@@ -58,12 +57,12 @@ impl fmt::Display for State {
 pub const ROW_COUNT: usize = 6;
 pub const COL_COUNT: usize = 7;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 struct BitBoard {
     current_position: u64,
     mask: u64,
 }
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Board {
     // We count from bottom left.
     // [0][0] is bottom left. [0][7] is bottom right
@@ -110,13 +109,13 @@ impl From<BoardError> for String {
 }
 impl BitBoard {
     pub fn top_mask(column : u32) -> u64 {
-        (1 << (ROW_COUNT - 1)) << column as u64 * (ROW_COUNT as u64 + 1)
+        (1u64 << (ROW_COUNT - 1)) << (column as u64 * (ROW_COUNT as u64 + 1))
     }
     pub fn bottom_mask(column : u32) -> u64 {
-        1 << column as u64 * (ROW_COUNT as u64 + 1)
+        1u64 << (column as u64 * (ROW_COUNT as u64 + 1))
     }
     pub fn column_mask(column : u32) -> u64 {
-        ((1 << ROW_COUNT) - 1) << column as u64 * (ROW_COUNT as u64 + 1)
+        ((1 << ROW_COUNT) - 1) << (column as u64 * (ROW_COUNT as u64 + 1))
     }
     pub fn alignment(position : u64) -> bool{
         //horizontal
@@ -161,7 +160,6 @@ impl Board {
         (self.positions.mask & BitBoard::top_mask(column)) == 0
     }
 
-    // This a move for a win
     pub fn check_move_for_win(&self, column: u32) -> bool {
         let pos = self.positions.current_position | 
                     ((self.positions.mask + BitBoard::bottom_mask(column)) & BitBoard::column_mask(column));
@@ -169,8 +167,8 @@ impl Board {
     }
     pub fn play(&mut self, column: u32) -> () {
         assert!(column < COL_COUNT as u32);
-        self.positions.current_position = self.positions.current_position ^ self.positions.mask;
-        self.positions.mask = self.positions.mask | (self.positions.mask + BitBoard::bottom_mask(column));
+        self.positions.current_position ^= self.positions.mask;
+        self.positions.mask |= self.positions.mask + BitBoard::bottom_mask(column);
         self.nr_moves = self.nr_moves + 1;
         self.current_player = !self.current_player;
     }
@@ -194,12 +192,27 @@ fn check_win_test() {
     assert!(!b.check_move_for_win(2));
 }
 
+
 #[test]
 fn can_play_test() {
-    let mut b : Board = Board::from_str("11111").unwrap();
-    assert!(b.can_play(0));
-    b.play(0);
-    assert!(!b.can_play(0));
+    let mut b : Board = Board::from_str("11111222223333344444555556666677777").unwrap();
+    for i in 0..COL_COUNT {
+        assert!(b.can_play(i as u32));
+        b.play(i as u32);
+        assert!(!b.can_play(i as u32), "Should not be able to play column {}", i);
+    }
+}
+#[test]
+fn top_mask_test() {
+    let m = BitBoard::top_mask(6);
+    assert_eq!(m, 0b00000000_00000000_10000000_00000000_00000000_00000000_00000000_00000000);
+                                            //_11111000_00000000_00000000_00000000_00000000
+    let m = BitBoard::top_mask(5);
+    assert_eq!(m, 0b00000000_00000000_00000001_00000000_00000000_00000000_00000000_00000000);
+    let m = BitBoard::top_mask(4);
+    assert_eq!(m, 0b00000000_00000000_00000000_00000010_00000000_00000000_00000000_00000000);
+    let m = BitBoard::top_mask(0);
+    assert_eq!(m, 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00100000);
 }
 
 #[test]
@@ -232,8 +245,40 @@ fn test_real() {
     assert!(b.check_move_for_win(5));
     assert!(b.check_move_for_win(6));
 }
+#[test]
+fn real_test_2() {
+    let mut b : Board = Board::from_str("67152117737262713366376314254").unwrap();
+    assert!(b.can_play(0));
+    assert!(b.can_play(1));
+    assert!(b.can_play(2));
+    assert!(b.can_play(3));
+    assert!(b.can_play(4));
+    assert!(b.can_play(5));
+    assert!(!b.can_play(6));
+
+    //No winning moves
+    assert!(!b.check_move_for_win(0));
+    assert!(!b.check_move_for_win(1));
+    assert!(!b.check_move_for_win(2));
+    assert!(!b.check_move_for_win(3));
+    assert!(!b.check_move_for_win(4));
+    assert!(!b.check_move_for_win(5));
+    assert!(!b.check_move_for_win(6));
 
 
+    // b.play(6);
+
+    // assert!(!b.check_move_for_win(0));
+    // assert!(!b.check_move_for_win(1));
+    // assert!(!b.check_move_for_win(2));
+    // assert!(!b.check_move_for_win(3));
+    // assert!(!b.check_move_for_win(4));
+    // assert!(b.check_move_for_win(5));
+    // assert!(b.check_move_for_win(6));
+}
+
+
+// Player one
 #[test]
 fn horizontal_win_test() {
     let b : Board = Board::from_str("1213142").unwrap();
@@ -258,6 +303,34 @@ fn diagonal1_win_test() {
 #[test]
 fn diagonal2_win_test() {
     let b : Board = Board::from_str("675655444").unwrap();
+    assert!(b.check_move_for_win(3));
+    assert!(!b.check_move_for_win(5));
+}
+//Player 2
+#[test]
+fn p2_horizontal_win_test() {
+    let b : Board = Board::from_str("61213142").unwrap();
+    assert!(b.check_move_for_win(4));
+    assert!(!b.check_move_for_win(5));
+}
+
+#[test]
+fn p2_vertical_win_test() {
+    let b : Board = Board::from_str("6121212").unwrap();
+    assert!(b.check_move_for_win(0));
+    assert!(!b.check_move_for_win(1));
+}
+
+#[test]
+fn p2_diagonal1_win_test() {
+    let b : Board = Board::from_str("6213233444").unwrap();
+    assert!(b.check_move_for_win(3));
+    assert!(!b.check_move_for_win(5));
+}
+
+#[test]
+fn p2_diagonal2_win_test() {
+    let b : Board = Board::from_str("1675655444").unwrap();
     assert!(b.check_move_for_win(3));
     assert!(!b.check_move_for_win(5));
 }
