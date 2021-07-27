@@ -41,11 +41,20 @@ mod tests {
         test_data.push("tests/benchmark_positions/Test_L3_R1");
         test_from_file(test_data).unwrap();
     }
+    #[bench]
+    fn end_easy_boards_bench(b : &mut Bencher) {
+        b.iter(|| end_easy_boards_test());
+    }
+
     #[test]
     fn middle_easy_boards_test(){
         let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_data.push("tests/benchmark_positions/Test_L2_R1");
         test_from_file(test_data).unwrap();
+    }
+    #[bench]
+    fn middle_easy_boards_bench(b : &mut Bencher) {
+        b.iter(|| middle_easy_boards_test());
     }
     #[test]
     fn middle_medium_boards_test(){
@@ -54,7 +63,37 @@ mod tests {
         test_from_file(test_data).unwrap();
     }
     #[bench]
-    fn easy_boards(b : &mut Bencher) {
-        b.iter(|| middle_easy_boards_test());
+    fn middle_medium_boards_bench(b : &mut Bencher) {
+        b.iter(|| middle_medium_boards_test());
+    }
+    #[test]
+    fn begin_easy_boards_test(){
+        let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        test_data.push("tests/benchmark_positions/Test_L1_R1");
+        test_from_file(test_data).unwrap();
+    }
+    #[bench]
+    fn begin_easy_boards_bench(b : &mut Bencher) {
+        b.iter(|| begin_easy_boards_test());
+    }
+    #[test]
+    fn begin_medium_boards_test(){
+        let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        test_data.push("tests/benchmark_positions/Test_L1_R2");
+        test_from_file(test_data).unwrap();
+    }
+    #[bench]
+    fn begin_medium_boards_bench(b : &mut Bencher) {
+        b.iter(|| begin_medium_boards_test());
+    }
+    #[test]
+    fn begin_hard_boards_test(){
+        let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        test_data.push("tests/benchmark_positions/Test_L1_R3");
+        test_from_file(test_data).unwrap();
+    }
+    #[bench]
+    fn begin_hard_boards_bench(b : &mut Bencher) {
+        b.iter(|| begin_hard_boards_test());
     }
 }
