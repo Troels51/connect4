@@ -5,17 +5,27 @@ extern crate test;
 #[cfg(test)]
 mod tests {
 
-    use std::{error::Error, path::{PathBuf}};
+    use std::{error::Error, path::{PathBuf}, fmt::{Display, self}};
+    use criterion::{Criterion, BenchmarkId, criterion_main, criterion_group};
     use test::Bencher;
     use connect4::{self, connect::{board::Board, solver::Solver}};
     use serde::{Deserialize};
 
 
 
-    #[derive(Debug, Deserialize)]
+    #[derive(Debug, Deserialize, Clone, Copy)]
     struct Record {
         board : Board,
         score : i32,
+    }
+    impl fmt::Display for Record { 
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            // Write strictly the first element into the supplied output
+            // stream: `f`. Returns `fmt::Result` which indicates whether the
+            // operation succeeded or failed. Note that `write!` uses syntax which
+            // is very similar to `println!`.
+            write!(f, "{} {}", self.board, self.score)
+        }
     }
     fn test_from_file(path: PathBuf) -> Result<(), Box<dyn Error >>{
         let rdr = csv::ReaderBuilder::new()
@@ -35,15 +45,12 @@ mod tests {
         }
         return Ok(());
     }
+    
     #[test]
     fn end_easy_boards_test(){
         let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_data.push("tests/benchmark_positions/Test_L3_R1");
         test_from_file(test_data).unwrap();
-    }
-    #[bench]
-    fn end_easy_boards_bench(b : &mut Bencher) {
-        b.iter(|| end_easy_boards_test());
     }
 
     #[test]
@@ -52,19 +59,12 @@ mod tests {
         test_data.push("tests/benchmark_positions/Test_L2_R1");
         test_from_file(test_data).unwrap();
     }
-    #[bench]
-    fn middle_easy_boards_bench(b : &mut Bencher) {
-        b.iter(|| middle_easy_boards_test());
-    }
+    
     #[test]
     fn middle_medium_boards_test(){
         let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_data.push("tests/benchmark_positions/Test_L2_R2");
         test_from_file(test_data).unwrap();
-    }
-    #[bench]
-    fn middle_medium_boards_bench(b : &mut Bencher) {
-        b.iter(|| middle_medium_boards_test());
     }
     #[test]
     fn begin_easy_boards_test(){
@@ -72,28 +72,16 @@ mod tests {
         test_data.push("tests/benchmark_positions/Test_L1_R1");
         test_from_file(test_data).unwrap();
     }
-    #[bench]
-    fn begin_easy_boards_bench(b : &mut Bencher) {
-        b.iter(|| begin_easy_boards_test());
-    }
     #[test]
     fn begin_medium_boards_test(){
         let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_data.push("tests/benchmark_positions/Test_L1_R2");
         test_from_file(test_data).unwrap();
     }
-    #[bench]
-    fn begin_medium_boards_bench(b : &mut Bencher) {
-        b.iter(|| begin_medium_boards_test());
-    }
     #[test]
     fn begin_hard_boards_test(){
         let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_data.push("tests/benchmark_positions/Test_L1_R3");
         test_from_file(test_data).unwrap();
-    }
-    #[bench]
-    fn begin_hard_boards_bench(b : &mut Bencher) {
-        b.iter(|| begin_hard_boards_test());
     }
 }
