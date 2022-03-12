@@ -1,14 +1,18 @@
+use std::collections::HashMap;
+
 use super::board;
 pub struct Solver {
     node_count : u32,
     column_order : [u32; board::COL_COUNT],
+    transposition_table: HashMap<board::BitBoard, i32>,
+
 }
 impl Solver {
     pub fn new() -> Solver {
         Solver {
             node_count: 0,
             column_order: [3, 4, 2, 5, 1, 6, 0],
-
+            transposition_table: HashMap::new(),
         }
     }
     pub fn negamax(&mut self, board : board::Board, alpha : i32, beta : i32) -> (i32, Vec<u32>) {
@@ -16,17 +20,22 @@ impl Solver {
         self.node_count = self.node_count + 1;
         let mut alpha = alpha;
         let mut beta = beta;
-
+        
         if board.nr_moves == board::COL_COUNT as u32 * board::ROW_COUNT as u32 {
             return (0, vec!());
         }
+
         for x in 0..board::COL_COUNT {
             if board.can_play(x as u32) && board.check_move_for_win(x as u32) {
                 let score = (board::COL_COUNT as i32 * board::ROW_COUNT as i32 + 1 - board.nr_moves as i32) / 2;
                 return (score, vec![x as u32]);
             }
         }
-        let max : i32 = (board::COL_COUNT as i32 * board::ROW_COUNT as i32 - 1 - board.nr_moves as i32) / 2;
+        let mut max : i32 = (board::COL_COUNT as i32 * board::ROW_COUNT as i32 - 1 - board.nr_moves as i32) / 2;
+        if let Some(val) = self.transposition_table.get(&board.positions) {
+            max = val + board::MIN_SCORE + 1;
+        }
+        
         let mut top_plays = vec!();
 
         if beta > max {
@@ -46,6 +55,7 @@ impl Solver {
                 if score > alpha { alpha = score; top_plays = plays; } //If i reverse it test 3 succeds
             }
         }
+        self.transposition_table.insert(board.positions, alpha);
         return (alpha, top_plays);
     }
     pub fn solve(&mut self, board : board::Board) -> (i32, Vec<u32>) {

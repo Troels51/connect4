@@ -1,5 +1,5 @@
 
-use std::{error::Error, path::{PathBuf}, fmt::{Display, self}};
+use std::{error::Error, path::{PathBuf}, fmt::{Display, self}, time::Duration};
 use criterion::{Criterion, BenchmarkId, criterion_main, criterion_group};
 use connect4::{self, connect::{board::Board, solver::Solver}};
 use serde::{Deserialize};
@@ -22,7 +22,9 @@ fn bench_from_file(c: &mut Criterion, path: PathBuf) -> Result<(), Box<dyn Error
     match rdr {
         Ok(mut result) => {
             for (i, value)in result.deserialize().enumerate() {
-                
+                if i > 5 {
+                    break;
+                }
                 let mut solver : Solver = Solver::new();
                 let record : Record = value?;
                 group.bench_with_input(BenchmarkId::from_parameter(i), &record,
@@ -70,12 +72,12 @@ fn begin_hard_boards_bench(c: &mut Criterion){
 }
 
 criterion_group!(benches,
-    //end_easy_boards_bench,
-    // middle_easy_boards_bench,
-     middle_medium_boards_bench,
-    // begin_easy_boards_bench,
-    // begin_medium_boards_bench,
-    // begin_hard_boards_bench
+    end_easy_boards_bench,
+    middle_easy_boards_bench,
+    middle_medium_boards_bench,
+    begin_easy_boards_bench,
+    begin_medium_boards_bench,
+    //begin_hard_boards_bench
 );
 
 criterion_main!(benches

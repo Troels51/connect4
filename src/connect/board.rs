@@ -57,8 +57,12 @@ impl fmt::Display for State {
 pub const ROW_COUNT: usize = 6;
 pub const COL_COUNT: usize = 7;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-struct BitBoard {
+pub const MIN_SCORE: i32 = -(ROW_COUNT as i32 *COL_COUNT as i32)/2 + 3;
+pub const MAX_SCORE: i32 = (ROW_COUNT as i32 *COL_COUNT as i32 +1)/2 - 3;
+
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct BitBoard {
     current_position: u64,
     mask: u64,
 }
@@ -67,7 +71,7 @@ pub struct Board {
     // We count from bottom left.
     // [0][0] is bottom left. [0][7] is bottom right
     // [7][0] is top left, [7][7] is top right
-    positions: BitBoard,      // position is stored as a bitboard
+    pub positions: BitBoard,      // position is stored as a bitboard
     pub current_player: Player,
     pub nr_moves: u32,
 }
