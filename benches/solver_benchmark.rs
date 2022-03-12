@@ -29,7 +29,10 @@ fn bench_from_file(c: &mut Criterion, path: PathBuf) -> Result<(), Box<dyn Error
                 let record : Record = value?;
                 group.bench_with_input(BenchmarkId::from_parameter(i), &record,
                 |b, val| {
-                        b.iter(|| solver.solve(record.board));
+                        b.iter(|| {
+                            let (score, plays) = solver.solve(val.board);
+                            assert_eq!(score, record.score, "The score should {} but scored {}, for this board {}", record.score, score, record.board);
+                        });
                     }
                 );
             }

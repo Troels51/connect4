@@ -55,7 +55,7 @@ impl Solver {
                 if score > alpha { alpha = score; top_plays = plays; } //If i reverse it test 3 succeds
             }
         }
-        self.transposition_table.insert(board.positions, alpha);
+        self.transposition_table.insert(board.positions, alpha - board::MIN_SCORE + 1);
         return (alpha, top_plays);
     }
     pub fn solve(&mut self, board : board::Board) -> (i32, Vec<u32>) {
