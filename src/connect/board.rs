@@ -61,17 +61,14 @@ pub const MIN_SCORE: i32 = -(ROW_COUNT as i32 *COL_COUNT as i32)/2 + 3;
 pub const MAX_SCORE: i32 = (ROW_COUNT as i32 *COL_COUNT as i32 +1)/2 - 3;
 
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct BitBoard {
-    current_position: u64,
-    mask: u64,
-}
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Board {
     // We count from bottom left.
     // [0][0] is bottom left. [0][7] is bottom right
     // [7][0] is top left, [7][7] is top right
-    pub positions: BitBoard,      // position is stored as a bitboard
+    pub current_position: u64, //position is stored as a board, this is the stones for the current player
+    pub mask: u64, //Mask for the non-empty positions
+
     pub current_player: Player,
     pub nr_moves: u32,
 }
@@ -111,7 +108,8 @@ impl From<BoardError> for String {
         todo!()
     }
 }
-impl BitBoard {
+
+impl Board {
     pub fn top_mask(column : u32) -> u64 {
         (1u64 << (ROW_COUNT - 1)) << (column as u64 * (ROW_COUNT as u64 + 1))
     }
@@ -138,7 +136,7 @@ impl BitBoard {
         if (m_3 & (m_3 >> (2*(ROW_COUNT+2)))) >= 1 {
              return true;
         }
-        // vertical;
+        // vertical
         let m_4 = position & (position >> 1);
         if(m_4 & (m_4 >> 2)) >= 1 {
             return true;
@@ -146,42 +144,40 @@ impl BitBoard {
 
         return false;
     }
-    
 }
+
 impl Board {
     pub fn new() -> Board {
         Board {
-            positions: BitBoard {
-                current_position: 0,
-                mask: 0,
-            },
+            current_position: 0,
+            mask: 0,
             current_player: Player::BLACK,
             nr_moves: 0,
         }
     }
 
     pub fn can_play(&self, column: u32) -> bool {
-        (self.positions.mask & BitBoard::top_mask(column)) == 0
+        (self.mask & Board::top_mask(column)) == 0
     }
 
     pub fn check_move_for_win(&self, column: u32) -> bool {
-        let pos = self.positions.current_position | 
-                    ((self.positions.mask + BitBoard::bottom_mask(column)) & BitBoard::column_mask(column));
-        BitBoard::alignment(pos)
+        let pos = self.current_position | 
+                    ((self.mask + Board::bottom_mask(column)) & Board::column_mask(column));
+        Board::alignment(pos)
     }
     pub fn play(&mut self, column: u32) -> () {
         assert!(column < COL_COUNT as u32);
-        self.positions.current_position ^= self.positions.mask;
-        self.positions.mask |= self.positions.mask + BitBoard::bottom_mask(column);
+        self.current_position ^= self.mask;
+        self.mask |= self.mask + Board::bottom_mask(column);
         self.nr_moves = self.nr_moves + 1;
         self.current_player = !self.current_player;
     }
     fn pos_to_state(&self, column: u32, row: u32) -> State
     {
-        if self.positions.current_position & (1 << ((row) + (column*COL_COUNT as u32))) >= 1 {
+        if self.current_position & (1 << ((row) + (column*COL_COUNT as u32))) >= 1 {
             return State::Player(Player::RED)
         }
-        else if self.positions.mask & (1 << ((row) + (column*COL_COUNT as u32))) >= 1 {
+        else if self.mask & (1 << ((row) + (column*COL_COUNT as u32))) >= 1 {
             return State::Player(Player::BLACK)
         }
         State::EMPTY
@@ -208,14 +204,14 @@ fn can_play_test() {
 }
 #[test]
 fn top_mask_test() {
-    let m = BitBoard::top_mask(6);
+    let m = Board::top_mask(6);
     assert_eq!(m, 0b00000000_00000000_10000000_00000000_00000000_00000000_00000000_00000000);
                                             //_11111000_00000000_00000000_00000000_00000000
-    let m = BitBoard::top_mask(5);
+    let m = Board::top_mask(5);
     assert_eq!(m, 0b00000000_00000000_00000001_00000000_00000000_00000000_00000000_00000000);
-    let m = BitBoard::top_mask(4);
+    let m = Board::top_mask(4);
     assert_eq!(m, 0b00000000_00000000_00000000_00000010_00000000_00000000_00000000_00000000);
-    let m = BitBoard::top_mask(0);
+    let m = Board::top_mask(0);
     assert_eq!(m, 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00100000);
 }
 

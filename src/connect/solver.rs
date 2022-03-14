@@ -4,7 +4,7 @@ use super::board;
 pub struct Solver {
     node_count : u32,
     column_order : [u32; board::COL_COUNT],
-    transposition_table: HashMap<board::BitBoard, i32>,
+    transposition_table: HashMap<u64, i32>,
 
 }
 impl Solver {
@@ -32,7 +32,7 @@ impl Solver {
             }
         }
         let mut max : i32 = (board::COL_COUNT as i32 * board::ROW_COUNT as i32 - 1 - board.nr_moves as i32) / 2;
-        if let Some(val) = self.transposition_table.get(&board.positions) {
+        if let Some(val) = self.transposition_table.get(&board.current_position) {
             max = val + board::MIN_SCORE + 1;
         }
         
@@ -55,7 +55,7 @@ impl Solver {
                 if score > alpha { alpha = score; top_plays = plays; } //If i reverse it test 3 succeds
             }
         }
-        self.transposition_table.insert(board.positions, alpha - board::MIN_SCORE + 1);
+        self.transposition_table.insert(board.current_position, alpha - board::MIN_SCORE);
         return (alpha, top_plays);
     }
     pub fn solve(&mut self, board : board::Board) -> (i32, Vec<u32>) {
@@ -96,3 +96,13 @@ fn easy_negamax_test_3() {
 }
 
  
+#[test]
+fn middle_negamax_test_2() {
+    use std::str::FromStr;
+    let b : board::Board = board::Board::from_str("37313333717124171162542").unwrap();
+    let mut solver : Solver = Solver::new();
+    let (score, plays) = solver.solve(b);
+    println!("Score: {} {:?}", score, plays);
+    println!("node count: {}", solver.node_count);
+    assert_eq!(score, 3, "This board {}, should score 3, but scored {}", b, score);
+}
