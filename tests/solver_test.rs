@@ -33,7 +33,7 @@ mod tests {
         match rdr {
             Ok(mut result) => {
                 for (i, value) in result.deserialize().enumerate() {
-                    if i > 20 {break;}
+                    if i > 100 {break;}
                     let mut solver : Solver = Solver::new();
                     let record : Record = value?;
                     let score = solver.solve(record.board);

@@ -57,8 +57,27 @@ impl Solver {
         self.transposition_table.insert(board, alpha - board::MIN_SCORE + 1);
         return alpha;
     }
+
     pub fn solve(&mut self, board : board::Board) -> i32 {
-        self.negamax(board, -10000, 10000)
+        let mut min: i32 = -(board::COL_COUNT as i32 *board::ROW_COUNT as i32 - board.nr_moves as i32)/2;
+        let mut max: i32 = (board::COL_COUNT as i32 *board::ROW_COUNT as i32+1 - board.nr_moves as i32)/2;
+        while min < max {
+            let mut med = min + (max - min) / 2;
+            if med <= 0 && min / 2 < med {
+                med = min / 2;
+            }
+            else if med >= 0 && max / 2 > med {
+                med = max / 2;
+            }
+            let r = self.negamax(board, med, med + 1);
+            if r <= med {
+                max = r;
+            }
+            else {
+                min = r;
+            }
+        }
+        min
     }
 }
 #[test]
