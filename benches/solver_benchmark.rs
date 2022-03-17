@@ -1,6 +1,6 @@
 
 use std::{error::Error, path::{PathBuf}, fmt::{Display, self}, time::Duration};
-use criterion::{Criterion, BenchmarkId, criterion_main, criterion_group};
+use criterion::{Criterion, BenchmarkId, criterion_main, criterion_group, black_box};
 use connect4::{self, connect::{board::Board, solver::Solver}};
 use serde::{Deserialize};
 
@@ -12,9 +12,7 @@ struct Record {
     score : i32,
 }
 
-fn bench_from_file(c: &mut Criterion, path: PathBuf) -> Result<(), Box<dyn Error >>{
-    let mut group = c.benchmark_group(path.to_str().expect("Expect path to be string like"));
-    group.sample_size(10);
+fn bench_from_file(path: PathBuf) -> Result<(), Box<dyn Error >>{
     let rdr = csv::ReaderBuilder::new()
         .has_headers(false)
         .delimiter(b' ')
@@ -22,19 +20,11 @@ fn bench_from_file(c: &mut Criterion, path: PathBuf) -> Result<(), Box<dyn Error
     match rdr {
         Ok(mut result) => {
             for (i, value)in result.deserialize().enumerate() {
-                if i > 5 {
-                    break;
-                }
                 let mut solver : Solver = Solver::new();
-                let record : Record = value?;
-                group.bench_with_input(BenchmarkId::from_parameter(i), &record,
-                |b, val| {
-                        b.iter(|| {
-                            let score = solver.solve(val.board);
-                            assert_eq!(score, record.score, "The score should {} but scored {}, for this board {}", record.score, score, record.board);
-                        });
-                    }
-                );
+                let record : Record = value.expect("Each line is a board");
+
+                let score = solver.solve(record.board);
+                assert_eq!(score, record.score, "The score should {} but scored {}, for this board {}", record.score, score, record.board);
             }
         }
         Err(_err) => {assert!(false);}
@@ -43,44 +33,90 @@ fn bench_from_file(c: &mut Criterion, path: PathBuf) -> Result<(), Box<dyn Error
 }
 
 fn end_easy_boards_bench(c: &mut Criterion){
-    let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_data.push("tests/benchmark_positions/Test_L3_R1");
-    bench_from_file(c, test_data).unwrap();
+    let mut group = c.benchmark_group("begin_easy_boards_bench");
+    group.sample_size(10);
+    group.bench_function("end_easy_boards_bench", |b| {
+        b.iter(|| {
+            let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            test_data.push("tests/benchmark_positions/Test_L3_R1");
+            bench_from_file(black_box(test_data), ).unwrap();
+
+        });
+    });
+    group.finish();
 }
 fn middle_easy_boards_bench(c: &mut Criterion){
-    let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_data.push("tests/benchmark_positions/Test_L2_R1");
-    bench_from_file(c,test_data).unwrap();
+    let mut group = c.benchmark_group("begin_easy_boards_bench");
+    group.sample_size(10);
+    group.bench_function("middle_easy_boards_bench", |b| {
+        b.iter(|| {
+            let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            test_data.push("tests/benchmark_positions/Test_L2_R1");
+            bench_from_file(black_box(test_data), ).unwrap();
+        });
+    });
+    group.finish();
 }
 
 fn middle_medium_boards_bench(c: &mut Criterion){
-    let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_data.push("tests/benchmark_positions/Test_L2_R2");
-    bench_from_file(c,test_data).unwrap();
+    let mut group = c.benchmark_group("begin_easy_boards_bench");
+    group.sample_size(10);
+    group.bench_function("middle_medium_boards_bench", |b| {
+        b.iter(|| {
+            let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            test_data.push("tests/benchmark_positions/Test_L2_R2");
+            bench_from_file(black_box(test_data), ).unwrap();
+        });
+    });
+    group.finish();
+
 }
 fn begin_easy_boards_bench(c: &mut Criterion){
-    let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_data.push("tests/benchmark_positions/Test_L1_R1");
-    bench_from_file(c,test_data).unwrap();
+    let mut group = c.benchmark_group("begin_easy_boards_bench");
+    group.sample_size(10);
+    group.bench_function("begin_easy_boards_bench", |b| {
+        b.iter(|| {
+            let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            test_data.push("tests/benchmark_positions/Test_L1_R1");
+            bench_from_file(black_box(test_data), ).unwrap();
+        });
+    });
+    group.finish();
 }
 fn begin_medium_boards_bench(c: &mut Criterion){
-    let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_data.push("tests/benchmark_positions/Test_L1_R2");
-    bench_from_file(c,test_data).unwrap();
+    let mut group = c.benchmark_group("begin_easy_boards_bench");
+    group.sample_size(10);
+    group.bench_function("begin_medium_boards_bench", |b| {
+        b.iter(|| {
+            let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            test_data.push("tests/benchmark_positions/Test_L1_R2");
+            bench_from_file(black_box(test_data), ).unwrap();
+        });
+    });
+    group.finish();
+
 }
 fn begin_hard_boards_bench(c: &mut Criterion){
-    let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_data.push("tests/benchmark_positions/Test_L1_R3");
-    bench_from_file(c,test_data).unwrap();
+    let mut group = c.benchmark_group("begin_easy_boards_bench");
+    group.sample_size(10);
+    group.bench_function("begin_hard_boards_bench", |b| {
+        b.iter(|| {
+            let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            test_data.push("tests/benchmark_positions/Test_L1_R3");
+            bench_from_file(black_box(test_data), ).unwrap();
+        });
+    });
+    group.finish();
+
 }
 
 criterion_group!(benches,
-    end_easy_boards_bench,
-    middle_easy_boards_bench,
-    middle_medium_boards_bench,
-    begin_easy_boards_bench,
+    //end_easy_boards_bench,
+    //middle_easy_boards_bench,
+    //middle_medium_boards_bench,
+    //begin_easy_boards_bench,
     begin_medium_boards_bench,
-    //begin_hard_boards_bench
+    begin_hard_boards_bench
 );
 
 criterion_main!(benches
