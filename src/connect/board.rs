@@ -1,5 +1,8 @@
-use std::{fmt, str::FromStr};
+use std::{fmt, str::FromStr, hash::Hasher};
 use serde::{de, Deserialize, Deserializer};
+
+use core::hash::Hash;
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Player {
     RED,
@@ -57,8 +60,8 @@ impl fmt::Display for State {
 pub const ROW_COUNT: usize = 6;
 pub const COL_COUNT: usize = 7;
 
-pub const MIN_SCORE: i32 = -(ROW_COUNT as i32 *COL_COUNT as i32)/2 + 3;
-pub const MAX_SCORE: i32 = (ROW_COUNT as i32 *COL_COUNT as i32 +1)/2 - 3;
+pub const MIN_SCORE: i32 = -(ROW_COUNT as i32 * COL_COUNT as i32) / 2 + 3;
+pub const MAX_SCORE: i32 = (ROW_COUNT as i32 * COL_COUNT as i32 +1) / 2 - 3;
 
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -71,6 +74,12 @@ pub struct Board {
 
     pub current_player: Player,
     pub nr_moves: u32,
+}
+
+impl Hash for Board {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        (self.current_position + self.mask).hash(state);
+    }
 }
 
 impl<'de> Deserialize<'de> for Board {

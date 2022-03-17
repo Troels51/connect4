@@ -6,8 +6,6 @@ extern crate test;
 mod tests {
 
     use std::{error::Error, path::{PathBuf}, fmt::{Display, self}};
-    use criterion::{Criterion, BenchmarkId, criterion_main, criterion_group};
-    use test::Bencher;
     use connect4::{self, connect::{board::Board, solver::Solver}};
     use serde::{Deserialize};
 
@@ -34,11 +32,12 @@ mod tests {
             .from_path(path);
         match rdr {
             Ok(mut result) => {
-                for value in result.deserialize() {
+                for (i, value) in result.deserialize().enumerate() {
+                    if i > 20 {break;}
                     let mut solver : Solver = Solver::new();
                     let record : Record = value?;
-                    let (score, plays) = solver.solve(record.board);
-                    assert_eq!(score, record.score, "The score should {} but scored {}, for this board {}", record.score, score, record.board);
+                    let score = solver.solve(record.board);
+                    assert_eq!(score, record.score, "The score should {} but scored {}, for test number {}", record.score, score, i);
                 }
             }
             Err(_err) => {assert!(false);}
