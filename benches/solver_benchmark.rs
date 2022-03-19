@@ -33,9 +33,7 @@ fn bench_from_file(path: PathBuf) -> Result<(), Box<dyn Error >>{
 }
 
 fn end_easy_boards_bench(c: &mut Criterion){
-    let mut group = c.benchmark_group("begin_easy_boards_bench");
-    group.sample_size(10);
-    group.bench_function("end_easy_boards_bench", |b| {
+    c.bench_function("end_easy_boards_bench", |b| {
         b.iter(|| {
             let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
             test_data.push("tests/benchmark_positions/Test_L3_R1");
@@ -43,81 +41,64 @@ fn end_easy_boards_bench(c: &mut Criterion){
 
         });
     });
-    group.finish();
 }
 fn middle_easy_boards_bench(c: &mut Criterion){
-    let mut group = c.benchmark_group("begin_easy_boards_bench");
-    group.sample_size(10);
-    group.bench_function("middle_easy_boards_bench", |b| {
+    c.bench_function("middle_easy_boards_bench", |b| {
         b.iter(|| {
             let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
             test_data.push("tests/benchmark_positions/Test_L2_R1");
             bench_from_file(black_box(test_data), ).unwrap();
         });
     });
-    group.finish();
 }
 
 fn middle_medium_boards_bench(c: &mut Criterion){
-    let mut group = c.benchmark_group("begin_easy_boards_bench");
-    group.sample_size(10);
-    group.bench_function("middle_medium_boards_bench", |b| {
+    c.bench_function("middle_medium_boards_bench", |b| {
         b.iter(|| {
             let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
             test_data.push("tests/benchmark_positions/Test_L2_R2");
             bench_from_file(black_box(test_data), ).unwrap();
         });
     });
-    group.finish();
-
 }
 fn begin_easy_boards_bench(c: &mut Criterion){
-    let mut group = c.benchmark_group("begin_easy_boards_bench");
-    group.sample_size(10);
-    group.bench_function("begin_easy_boards_bench", |b| {
+    c.bench_function("begin_easy_boards_bench", |b| {
         b.iter(|| {
             let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
             test_data.push("tests/benchmark_positions/Test_L1_R1");
             bench_from_file(black_box(test_data), ).unwrap();
         });
     });
-    group.finish();
 }
 fn begin_medium_boards_bench(c: &mut Criterion){
-    let mut group = c.benchmark_group("begin_easy_boards_bench");
-    group.sample_size(10);
-    group.bench_function("begin_medium_boards_bench", |b| {
+    c.bench_function("begin_medium_boards_bench", |b| {
         b.iter(|| {
             let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
             test_data.push("tests/benchmark_positions/Test_L1_R2");
             bench_from_file(black_box(test_data), ).unwrap();
         });
     });
-    group.finish();
-
 }
 fn begin_hard_boards_bench(c: &mut Criterion){
-    let mut group = c.benchmark_group("begin_easy_boards_bench");
-    group.sample_size(10);
-    group.bench_function("begin_hard_boards_bench", |b| {
+    c.bench_function("begin_hard_boards_bench", |b| {
         b.iter(|| {
             let mut test_data = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
             test_data.push("tests/benchmark_positions/Test_L1_R3");
             bench_from_file(black_box(test_data), ).unwrap();
         });
     });
-    group.finish();
-
 }
 
-criterion_group!(benches,
-    //end_easy_boards_bench,
-    //middle_easy_boards_bench,
-    //middle_medium_boards_bench,
-    //begin_easy_boards_bench,
+criterion_group!{
+    name = benches;
+    config = Criterion::default().sample_size(10);
+    targets = end_easy_boards_bench,
+    middle_easy_boards_bench,
+    middle_medium_boards_bench,
+    begin_easy_boards_bench,
     begin_medium_boards_bench,
-    begin_hard_boards_bench
-);
+    //begin_hard_boards_bench
+}
 
 criterion_main!(benches
 );
