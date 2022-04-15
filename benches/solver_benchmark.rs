@@ -2,13 +2,11 @@ use connect4::{
     self,
     connect::{board::Board, solver::Solver},
 };
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use serde::Deserialize;
 use std::{
     error::Error,
-    fmt::{self, Display},
     path::PathBuf,
-    time::Duration,
 };
 
 #[derive(Debug, Deserialize, Clone, Copy)]
@@ -24,7 +22,7 @@ fn bench_from_file(path: PathBuf) -> Result<(), Box<dyn Error>> {
         .from_path(path);
     match rdr {
         Ok(mut result) => {
-            for (i, value) in result.deserialize().enumerate() {
+            for (_i, value) in result.deserialize().enumerate() {
                 let mut solver: Solver = Solver::new();
                 let record: Record = value.expect("Each line is a board");
 
@@ -40,7 +38,7 @@ fn bench_from_file(path: PathBuf) -> Result<(), Box<dyn Error>> {
             assert!(false);
         }
     }
-    return Ok(());
+    Ok(())
 }
 
 fn end_easy_boards_bench(c: &mut Criterion) {

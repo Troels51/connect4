@@ -34,11 +34,11 @@ pub enum State {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\n")?;
+        writeln!(f)?;
 
-        write!(
+        writeln!(
             f,
-            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            "| {} | {} | {} | {} | {} | {} | {} | ",
             self.pos_to_state(0, 5),
             self.pos_to_state(1, 5),
             self.pos_to_state(2, 5),
@@ -47,9 +47,9 @@ impl fmt::Display for Board {
             self.pos_to_state(5, 5),
             self.pos_to_state(6, 5)
         )?;
-        write!(
+        writeln!(
             f,
-            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            "| {} | {} | {} | {} | {} | {} | {} | ",
             self.pos_to_state(0, 4),
             self.pos_to_state(1, 4),
             self.pos_to_state(2, 4),
@@ -58,9 +58,9 @@ impl fmt::Display for Board {
             self.pos_to_state(5, 4),
             self.pos_to_state(6, 4)
         )?;
-        write!(
+        writeln!(
             f,
-            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            "| {} | {} | {} | {} | {} | {} | {} | ",
             self.pos_to_state(0, 3),
             self.pos_to_state(1, 3),
             self.pos_to_state(2, 3),
@@ -69,9 +69,9 @@ impl fmt::Display for Board {
             self.pos_to_state(5, 3),
             self.pos_to_state(6, 3)
         )?;
-        write!(
+        writeln!(
             f,
-            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            "| {} | {} | {} | {} | {} | {} | {} | ",
             self.pos_to_state(0, 2),
             self.pos_to_state(1, 2),
             self.pos_to_state(2, 2),
@@ -80,9 +80,9 @@ impl fmt::Display for Board {
             self.pos_to_state(5, 2),
             self.pos_to_state(6, 2)
         )?;
-        write!(
+        writeln!(
             f,
-            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            "| {} | {} | {} | {} | {} | {} | {} | ",
             self.pos_to_state(0, 1),
             self.pos_to_state(1, 1),
             self.pos_to_state(2, 1),
@@ -91,9 +91,9 @@ impl fmt::Display for Board {
             self.pos_to_state(5, 1),
             self.pos_to_state(6, 1)
         )?;
-        write!(
+        writeln!(
             f,
-            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            "| {} | {} | {} | {} | {} | {} | {} | ",
             self.pos_to_state(0, 0),
             self.pos_to_state(1, 0),
             self.pos_to_state(2, 0),
@@ -103,7 +103,7 @@ impl fmt::Display for Board {
             self.pos_to_state(6, 0)
         )?;
 
-        write!(f, "\n")
+        writeln!(f)
     }
 }
 //Naming :(
@@ -166,7 +166,7 @@ impl FromStr for Board {
             let columnnr: u32 = column.to_digit(10).ok_or("Was not digit")?;
             b.play(columnnr - 1); //Subtract 1 to zero index it
         }
-        return Ok(b);
+        Ok(b)
     }
 }
 pub struct BoardError;
@@ -209,13 +209,13 @@ impl Board {
             return true;
         }
 
-        return false;
+        false
     }
     const fn bottom(width: usize, height: usize) -> u64 {
         if width == 0 {
             0
         } else {
-            Board::bottom(width - 1, height) | 1 << (width - 1) * (height + 1)
+            Board::bottom(width - 1, height) | 1 << ((width - 1) * (height + 1))
         }
     }
     const BOTTOM_MASK: u64 = Board::bottom(COL_COUNT, ROW_COUNT);
@@ -233,28 +233,28 @@ impl Board {
         // vertical;
         let mut r: u64 = (position << 1) & (position << 2) & (position << 3);
         //horizontal
-        let mut p: u64 = (position << (ROW_COUNT + 1)) & (position << 2 * (ROW_COUNT + 1));
-        r |= p & (position << 3 * (ROW_COUNT + 1));
+        let mut p: u64 = (position << (ROW_COUNT + 1)) & (position << (2 * (ROW_COUNT + 1)));
+        r |= p & (position << (3 * (ROW_COUNT + 1)));
         r |= p & (position >> (ROW_COUNT + 1));
         p >>= 3 * (ROW_COUNT + 1);
         r |= p & (position << (ROW_COUNT + 1));
-        r |= p & (position >> 3 * (ROW_COUNT + 1));
+        r |= p & (position >> (3 * (ROW_COUNT + 1)));
 
         //diagonal 1
-        p = (position << ROW_COUNT) & (position << 2 * ROW_COUNT);
-        r |= p & (position << 3 * ROW_COUNT);
+        p = (position << ROW_COUNT) & (position << (2 * ROW_COUNT));
+        r |= p & (position << (3 * ROW_COUNT));
         r |= p & (position >> ROW_COUNT);
         p >>= 3 * ROW_COUNT;
         r |= p & (position << ROW_COUNT);
-        r |= p & (position >> 3 * ROW_COUNT);
+        r |= p & (position >> (3 * ROW_COUNT));
 
         //diagonal 2
-        p = (position << (ROW_COUNT + 2)) & (position << 2 * (ROW_COUNT + 2));
-        r |= p & (position << 3 * (ROW_COUNT + 2));
+        p = (position << (ROW_COUNT + 2)) & (position << (2 * (ROW_COUNT + 2)));
+        r |= p & (position << (3 * (ROW_COUNT + 2)));
         r |= p & (position >> (ROW_COUNT + 2));
         p >>= 3 * (ROW_COUNT + 2);
         r |= p & (position << (ROW_COUNT + 2));
-        r |= p & (position >> 3 * (ROW_COUNT + 2));
+        r |= p & (position >> (3 * (ROW_COUNT + 2)));
 
         r & (Board::BOARD_MASK ^ mask)
     }
@@ -310,12 +310,12 @@ impl Board {
         assert_eq!(new_move.count_ones(), 1, "Move should only contain 1 one");
         self.current_position ^= self.mask;
         self.mask |= new_move;
-        self.nr_moves = self.nr_moves + 1;
+        self.nr_moves += 1;
         self.current_player = !self.current_player;
     }
-    pub fn play(&mut self, column: u32) -> () {
+    pub fn play(&mut self, column: u32) {
         assert!(column < COL_COUNT as u32);
-        self.play_bitmove(self.mask + Board::bottom_mask(column) & Board::column_mask(column));
+        self.play_bitmove((self.mask + Board::bottom_mask(column)) & Board::column_mask(column));
     }
     fn pos_to_state(&self, column: u32, row: u32) -> State {
         if self.current_position & (1 << ((row) + (column * COL_COUNT as u32))) >= 1 {
@@ -353,23 +353,23 @@ fn top_mask_test() {
     let m = Board::top_mask(6);
     assert_eq!(
         m,
-        0b00000000_00000000_10000000_00000000_00000000_00000000_00000000_00000000
+        0b0000_0000_0000_0000_1000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000
     );
     //_11111000_00000000_00000000_00000000_00000000
     let m = Board::top_mask(5);
     assert_eq!(
         m,
-        0b00000000_00000000_00000001_00000000_00000000_00000000_00000000_00000000
+        0b0000_0000_0000_0000_0000_0001_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000
     );
     let m = Board::top_mask(4);
     assert_eq!(
         m,
-        0b00000000_00000000_00000000_00000010_00000000_00000000_00000000_00000000
+        0b0000_0000_0000_0000_0000_0000_0000_0010_0000_0000_0000_0000_0000_0000_0000_0000
     );
     let m = Board::top_mask(0);
     assert_eq!(
         m,
-        0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00100000
+        0b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0010_0000
     );
 }
 
@@ -405,7 +405,7 @@ fn test_real() {
 }
 #[test]
 fn real_test_2() {
-    let mut b: Board = Board::from_str("67152117737262713366376314254").unwrap();
+    let b: Board = Board::from_str("67152117737262713366376314254").unwrap();
     assert!(b.can_play(0));
     assert!(b.can_play(1));
     assert!(b.can_play(2));

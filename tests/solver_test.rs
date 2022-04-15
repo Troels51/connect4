@@ -8,7 +8,7 @@ mod tests {
     use serde::Deserialize;
     use std::{
         error::Error,
-        fmt::{self, Display},
+        fmt::{self},
         path::PathBuf,
     };
 
@@ -49,7 +49,7 @@ mod tests {
                 assert!(false);
             }
         }
-        return Ok(());
+        Ok(())
     }
 
     #[test]

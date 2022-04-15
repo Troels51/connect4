@@ -1,5 +1,4 @@
 use std::collections::{
-    binary_heap::{self, BinaryHeap},
     HashMap,
 };
 
@@ -22,7 +21,7 @@ impl Solver {
     pub fn negamax(&mut self, board: board::Board, alpha: i32, beta: i32) -> i32 {
         assert!(alpha < beta);
         assert!(!board.can_win_next());
-        self.node_count = self.node_count + 1;
+        self.node_count += 1;
         let mut alpha = alpha;
         let mut beta = beta;
 
@@ -57,14 +56,14 @@ impl Solver {
         }
         let mut pqueue = PriorityQueue::new();
         for i in self.column_order {
-            let position = possible & board::Board::column_mask(i.into());
+            let position = possible & board::Board::column_mask(i);
             if position != 0 {
                 let move_score = board.move_score(position);
                 pqueue.push(position, move_score);
             }
         }
         for next_move in pqueue.into_sorted_iter() {
-            let mut b_copy = board.clone();
+            let mut b_copy = board;
             b_copy.play_bitmove(next_move.0);
             let score = -self.negamax(b_copy, -beta, -alpha);
             if score >= beta {
@@ -76,7 +75,7 @@ impl Solver {
         }
         self.transposition_table
             .insert(board, alpha - board::MIN_SCORE + 1);
-        return alpha;
+        alpha
     }
 
     pub fn solve(&mut self, board: board::Board) -> i32 {
