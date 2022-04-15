@@ -1,5 +1,5 @@
-use std::{fmt, str::FromStr, hash::Hasher};
 use serde::{de, Deserialize, Deserializer};
+use std::{fmt, hash::Hasher, str::FromStr};
 
 use core::hash::Hash;
 
@@ -33,17 +33,76 @@ pub enum State {
 }
 
 impl fmt::Display for Board {
-
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "\n")?;
 
-        write!(f, "| {} | {} | {} | {} | {} | {} | {} | \n", self.pos_to_state(0, 5), self.pos_to_state(1, 5), self.pos_to_state(2, 5), self.pos_to_state(3, 5), self.pos_to_state(4, 5), self.pos_to_state(5, 5), self.pos_to_state(6, 5))?;
-        write!(f, "| {} | {} | {} | {} | {} | {} | {} | \n", self.pos_to_state(0, 4), self.pos_to_state(1, 4), self.pos_to_state(2, 4), self.pos_to_state(3, 4), self.pos_to_state(4, 4), self.pos_to_state(5, 4), self.pos_to_state(6, 4))?;
-        write!(f, "| {} | {} | {} | {} | {} | {} | {} | \n", self.pos_to_state(0, 3), self.pos_to_state(1, 3), self.pos_to_state(2, 3), self.pos_to_state(3, 3), self.pos_to_state(4, 3), self.pos_to_state(5, 3), self.pos_to_state(6, 3))?;
-        write!(f, "| {} | {} | {} | {} | {} | {} | {} | \n", self.pos_to_state(0, 2), self.pos_to_state(1, 2), self.pos_to_state(2, 2), self.pos_to_state(3, 2), self.pos_to_state(4, 2), self.pos_to_state(5, 2), self.pos_to_state(6, 2))?;
-        write!(f, "| {} | {} | {} | {} | {} | {} | {} | \n", self.pos_to_state(0, 1), self.pos_to_state(1, 1), self.pos_to_state(2, 1), self.pos_to_state(3, 1), self.pos_to_state(4, 1), self.pos_to_state(5, 1), self.pos_to_state(6, 1))?;
-        write!(f, "| {} | {} | {} | {} | {} | {} | {} | \n", self.pos_to_state(0, 0), self.pos_to_state(1, 0), self.pos_to_state(2, 0), self.pos_to_state(3, 0), self.pos_to_state(4, 0), self.pos_to_state(5, 0), self.pos_to_state(6, 0))?;
-       
+        write!(
+            f,
+            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            self.pos_to_state(0, 5),
+            self.pos_to_state(1, 5),
+            self.pos_to_state(2, 5),
+            self.pos_to_state(3, 5),
+            self.pos_to_state(4, 5),
+            self.pos_to_state(5, 5),
+            self.pos_to_state(6, 5)
+        )?;
+        write!(
+            f,
+            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            self.pos_to_state(0, 4),
+            self.pos_to_state(1, 4),
+            self.pos_to_state(2, 4),
+            self.pos_to_state(3, 4),
+            self.pos_to_state(4, 4),
+            self.pos_to_state(5, 4),
+            self.pos_to_state(6, 4)
+        )?;
+        write!(
+            f,
+            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            self.pos_to_state(0, 3),
+            self.pos_to_state(1, 3),
+            self.pos_to_state(2, 3),
+            self.pos_to_state(3, 3),
+            self.pos_to_state(4, 3),
+            self.pos_to_state(5, 3),
+            self.pos_to_state(6, 3)
+        )?;
+        write!(
+            f,
+            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            self.pos_to_state(0, 2),
+            self.pos_to_state(1, 2),
+            self.pos_to_state(2, 2),
+            self.pos_to_state(3, 2),
+            self.pos_to_state(4, 2),
+            self.pos_to_state(5, 2),
+            self.pos_to_state(6, 2)
+        )?;
+        write!(
+            f,
+            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            self.pos_to_state(0, 1),
+            self.pos_to_state(1, 1),
+            self.pos_to_state(2, 1),
+            self.pos_to_state(3, 1),
+            self.pos_to_state(4, 1),
+            self.pos_to_state(5, 1),
+            self.pos_to_state(6, 1)
+        )?;
+        write!(
+            f,
+            "| {} | {} | {} | {} | {} | {} | {} | \n",
+            self.pos_to_state(0, 0),
+            self.pos_to_state(1, 0),
+            self.pos_to_state(2, 0),
+            self.pos_to_state(3, 0),
+            self.pos_to_state(4, 0),
+            self.pos_to_state(5, 0),
+            self.pos_to_state(6, 0)
+        )?;
+
         write!(f, "\n")
     }
 }
@@ -61,8 +120,7 @@ pub const ROW_COUNT: usize = 6;
 pub const COL_COUNT: usize = 7;
 
 pub const MIN_SCORE: i32 = -(ROW_COUNT as i32 * COL_COUNT as i32) / 2 + 3;
-pub const MAX_SCORE: i32 = (ROW_COUNT as i32 * COL_COUNT as i32 +1) / 2 - 3;
-
+pub const MAX_SCORE: i32 = (ROW_COUNT as i32 * COL_COUNT as i32 + 1) / 2 - 3;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Board {
@@ -70,7 +128,7 @@ pub struct Board {
     // [0][0] is bottom left. [0][7] is bottom right
     // [7][0] is top left, [7][7] is top right
     pub current_position: u64, //position is stored as a board, this is the stones for the current player
-    pub mask: u64, //Mask for the non-empty positions
+    pub mask: u64,             //Mask for the non-empty positions
 
     pub current_player: Player,
     pub nr_moves: u32,
@@ -119,85 +177,84 @@ impl From<BoardError> for String {
 }
 
 impl Board {
-    pub fn top_mask(column : u32) -> u64 {
+    pub fn top_mask(column: u32) -> u64 {
         (1u64 << (ROW_COUNT - 1)) << (column as u64 * (ROW_COUNT as u64 + 1))
     }
-    pub fn bottom_mask(column : u32) -> u64 {
+    pub fn bottom_mask(column: u32) -> u64 {
         1u64 << (column as u64 * (ROW_COUNT as u64 + 1))
     }
-    pub fn column_mask(column : u32) -> u64 {
+    pub fn column_mask(column: u32) -> u64 {
         ((1 << ROW_COUNT) - 1) << (column as u64 * (ROW_COUNT as u64 + 1))
     }
-    pub fn alignment(position : u64) -> bool{
+    pub fn alignment(position: u64) -> bool {
         //horizontal
-        let m  = position & (position >> (ROW_COUNT+1));
-        if (m & (m >> (2*(ROW_COUNT+1)))) >= 1 {
+        let m = position & (position >> (ROW_COUNT + 1));
+        if (m & (m >> (2 * (ROW_COUNT + 1)))) >= 1 {
             return true;
         }
         // diagonal 1
         let m_2 = position & (position >> ROW_COUNT);
-        if (m_2 & (m_2 >> (2*ROW_COUNT))) >= 1 {
+        if (m_2 & (m_2 >> (2 * ROW_COUNT))) >= 1 {
             return true;
         }
 
-        // diagonal 2 
-        let m_3 = position & (position >> (ROW_COUNT+2));
-        if (m_3 & (m_3 >> (2*(ROW_COUNT+2)))) >= 1 {
-             return true;
+        // diagonal 2
+        let m_3 = position & (position >> (ROW_COUNT + 2));
+        if (m_3 & (m_3 >> (2 * (ROW_COUNT + 2)))) >= 1 {
+            return true;
         }
         // vertical
         let m_4 = position & (position >> 1);
-        if(m_4 & (m_4 >> 2)) >= 1 {
+        if (m_4 & (m_4 >> 2)) >= 1 {
             return true;
-        } 
+        }
 
         return false;
     }
-    const fn bottom(width: usize, height : usize) -> u64 {
+    const fn bottom(width: usize, height: usize) -> u64 {
         if width == 0 {
             0
-        }
-        else {
-            Board::bottom(width-1, height) | 1 << (width-1)*(height+1)
+        } else {
+            Board::bottom(width - 1, height) | 1 << (width - 1) * (height + 1)
         }
     }
     const BOTTOM_MASK: u64 = Board::bottom(COL_COUNT, ROW_COUNT);
     const BOARD_MASK: u64 = Board::BOTTOM_MASK * ((1 << ROW_COUNT) - 1);
 
-    fn opponent_winning_position(&self) -> u64 { 
+    fn opponent_winning_position(&self) -> u64 {
         Board::compute_winning_position(self.current_position ^ self.mask, self.mask)
     }
 
     pub fn possible_moves(&self) -> u64 {
-         (self.mask + Board::BOTTOM_MASK) & Board::BOARD_MASK
+        (self.mask + Board::BOTTOM_MASK) & Board::BOARD_MASK
     }
 
     fn compute_winning_position(position: u64, mask: u64) -> u64 {
         // vertical;
         let mut r: u64 = (position << 1) & (position << 2) & (position << 3);
         //horizontal
-        let mut p : u64 = (position << (ROW_COUNT+1)) & (position << 2*(ROW_COUNT+1));
+        let mut p: u64 = (position << (ROW_COUNT + 1)) & (position << 2 * (ROW_COUNT + 1));
         r |= p & (position << 3 * (ROW_COUNT + 1));
-        r |= p & (position >> (ROW_COUNT+1));
+        r |= p & (position >> (ROW_COUNT + 1));
         p >>= 3 * (ROW_COUNT + 1);
-        r |= p & (position << (ROW_COUNT+1));
-        r |= p & (position >> 3*(ROW_COUNT+1));
+        r |= p & (position << (ROW_COUNT + 1));
+        r |= p & (position >> 3 * (ROW_COUNT + 1));
 
         //diagonal 1
-        p = (position << ROW_COUNT) & (position << 2*ROW_COUNT);
-        r |= p & (position << 3*ROW_COUNT);
+        p = (position << ROW_COUNT) & (position << 2 * ROW_COUNT);
+        r |= p & (position << 3 * ROW_COUNT);
         r |= p & (position >> ROW_COUNT);
-        p >>= 3*ROW_COUNT;
+        p >>= 3 * ROW_COUNT;
         r |= p & (position << ROW_COUNT);
-        r |= p & (position >> 3*ROW_COUNT);
+        r |= p & (position >> 3 * ROW_COUNT);
 
         //diagonal 2
-        p = (position << (ROW_COUNT+2)) & (position << 2*(ROW_COUNT+2));
-        r |= p & (position << 3*(ROW_COUNT+2));
-        r |= p & (position >> (ROW_COUNT+2));
-        p >>= 3*(ROW_COUNT+2);
-        r |= p & (position << (ROW_COUNT+2));
-        r |= p & (position >> 3*(ROW_COUNT+2));
+        p = (position << (ROW_COUNT + 2)) & (position << 2 * (ROW_COUNT + 2));
+        r |= p & (position << 3 * (ROW_COUNT + 2));
+        r |= p & (position >> (ROW_COUNT + 2));
+        p >>= 3 * (ROW_COUNT + 2);
+        r |= p & (position << (ROW_COUNT + 2));
+        r |= p & (position >> 3 * (ROW_COUNT + 2));
 
         r & (Board::BOARD_MASK ^ mask)
     }
@@ -210,8 +267,7 @@ impl Board {
         if forced_moves != 0 {
             if forced_moves & (forced_moves - 1) != 0 {
                 return 0;
-            }
-            else { 
+            } else {
                 possible_mask = forced_moves;
             }
         }
@@ -226,10 +282,10 @@ impl Board {
         Board::compute_winning_position(self.current_position, self.mask)
     }
     pub fn move_score(&self, new_move: u64) -> i32 {
-        Board::compute_winning_position(self.current_position | new_move, self.mask).count_ones() as i32
+        Board::compute_winning_position(self.current_position | new_move, self.mask).count_ones()
+            as i32
     }
 }
-
 
 impl Board {
     pub fn new() -> Board {
@@ -246,8 +302,8 @@ impl Board {
     }
 
     pub fn check_move_for_win(&self, column: u32) -> bool {
-        let pos = self.current_position | 
-                    ((self.mask + Board::bottom_mask(column)) & Board::column_mask(column));
+        let pos = self.current_position
+            | ((self.mask + Board::bottom_mask(column)) & Board::column_mask(column));
         Board::alignment(pos)
     }
     pub fn play_bitmove(&mut self, new_move: u64) {
@@ -256,18 +312,16 @@ impl Board {
         self.mask |= new_move;
         self.nr_moves = self.nr_moves + 1;
         self.current_player = !self.current_player;
-    }   
+    }
     pub fn play(&mut self, column: u32) -> () {
         assert!(column < COL_COUNT as u32);
         self.play_bitmove(self.mask + Board::bottom_mask(column) & Board::column_mask(column));
     }
-    fn pos_to_state(&self, column: u32, row: u32) -> State
-    {
-        if self.current_position & (1 << ((row) + (column*COL_COUNT as u32))) >= 1 {
-            return State::Player(Player::RED)
-        }
-        else if self.mask & (1 << ((row) + (column*COL_COUNT as u32))) >= 1 {
-            return State::Player(Player::BLACK)
+    fn pos_to_state(&self, column: u32, row: u32) -> State {
+        if self.current_position & (1 << ((row) + (column * COL_COUNT as u32))) >= 1 {
+            return State::Player(Player::RED);
+        } else if self.mask & (1 << ((row) + (column * COL_COUNT as u32))) >= 1 {
+            return State::Player(Player::BLACK);
         }
         State::EMPTY
     }
@@ -275,38 +329,53 @@ impl Board {
 
 #[test]
 fn check_win_test() {
-    let b : Board = Board::from_str("121212").unwrap();
+    let b: Board = Board::from_str("121212").unwrap();
     assert!(b.check_move_for_win(0));
     assert!(!b.check_move_for_win(1));
     assert!(!b.check_move_for_win(2));
 }
 
-
 #[test]
 fn can_play_test() {
-    let mut b : Board = Board::from_str("11111222223333344444555556666677777").unwrap();
+    let mut b: Board = Board::from_str("11111222223333344444555556666677777").unwrap();
     for i in 0..COL_COUNT {
         assert!(b.can_play(i as u32));
         b.play(i as u32);
-        assert!(!b.can_play(i as u32), "Should not be able to play column {}", i);
+        assert!(
+            !b.can_play(i as u32),
+            "Should not be able to play column {}",
+            i
+        );
     }
 }
 #[test]
 fn top_mask_test() {
     let m = Board::top_mask(6);
-    assert_eq!(m, 0b00000000_00000000_10000000_00000000_00000000_00000000_00000000_00000000);
-                                            //_11111000_00000000_00000000_00000000_00000000
+    assert_eq!(
+        m,
+        0b00000000_00000000_10000000_00000000_00000000_00000000_00000000_00000000
+    );
+    //_11111000_00000000_00000000_00000000_00000000
     let m = Board::top_mask(5);
-    assert_eq!(m, 0b00000000_00000000_00000001_00000000_00000000_00000000_00000000_00000000);
+    assert_eq!(
+        m,
+        0b00000000_00000000_00000001_00000000_00000000_00000000_00000000_00000000
+    );
     let m = Board::top_mask(4);
-    assert_eq!(m, 0b00000000_00000000_00000000_00000010_00000000_00000000_00000000_00000000);
+    assert_eq!(
+        m,
+        0b00000000_00000000_00000000_00000010_00000000_00000000_00000000_00000000
+    );
     let m = Board::top_mask(0);
-    assert_eq!(m, 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00100000);
+    assert_eq!(
+        m,
+        0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00100000
+    );
 }
 
 #[test]
 fn test_real() {
-    let mut b : Board = Board::from_str("2252576253462244111563365343671351441").unwrap();
+    let mut b: Board = Board::from_str("2252576253462244111563365343671351441").unwrap();
     assert!(!b.can_play(0));
     assert!(!b.can_play(1));
     assert!(!b.can_play(2));
@@ -336,7 +405,7 @@ fn test_real() {
 }
 #[test]
 fn real_test_2() {
-    let mut b : Board = Board::from_str("67152117737262713366376314254").unwrap();
+    let mut b: Board = Board::from_str("67152117737262713366376314254").unwrap();
     assert!(b.can_play(0));
     assert!(b.can_play(1));
     assert!(b.can_play(2));
@@ -354,7 +423,6 @@ fn real_test_2() {
     assert!(!b.check_move_for_win(5));
     assert!(!b.check_move_for_win(6));
 
-
     // b.play(6);
 
     // assert!(!b.check_move_for_win(0));
@@ -366,60 +434,59 @@ fn real_test_2() {
     // assert!(b.check_move_for_win(6));
 }
 
-
 // Player one
 #[test]
 fn horizontal_win_test() {
-    let b : Board = Board::from_str("1213142").unwrap();
+    let b: Board = Board::from_str("1213142").unwrap();
     assert!(b.check_move_for_win(4));
     assert!(!b.check_move_for_win(5));
 }
 
 #[test]
 fn vertical_win_test() {
-    let b : Board = Board::from_str("121212").unwrap();
+    let b: Board = Board::from_str("121212").unwrap();
     assert!(b.check_move_for_win(0));
     assert!(!b.check_move_for_win(1));
 }
 
 #[test]
 fn diagonal1_win_test() {
-    let b : Board = Board::from_str("213233444").unwrap();
+    let b: Board = Board::from_str("213233444").unwrap();
     assert!(b.check_move_for_win(3));
     assert!(!b.check_move_for_win(5));
 }
 
 #[test]
 fn diagonal2_win_test() {
-    let b : Board = Board::from_str("675655444").unwrap();
+    let b: Board = Board::from_str("675655444").unwrap();
     assert!(b.check_move_for_win(3));
     assert!(!b.check_move_for_win(5));
 }
 //Player 2
 #[test]
 fn p2_horizontal_win_test() {
-    let b : Board = Board::from_str("61213142").unwrap();
+    let b: Board = Board::from_str("61213142").unwrap();
     assert!(b.check_move_for_win(4));
     assert!(!b.check_move_for_win(5));
 }
 
 #[test]
 fn p2_vertical_win_test() {
-    let b : Board = Board::from_str("6121212").unwrap();
+    let b: Board = Board::from_str("6121212").unwrap();
     assert!(b.check_move_for_win(0));
     assert!(!b.check_move_for_win(1));
 }
 
 #[test]
 fn p2_diagonal1_win_test() {
-    let b : Board = Board::from_str("6213233444").unwrap();
+    let b: Board = Board::from_str("6213233444").unwrap();
     assert!(b.check_move_for_win(3));
     assert!(!b.check_move_for_win(5));
 }
 
 #[test]
 fn p2_diagonal2_win_test() {
-    let b : Board = Board::from_str("1675655444").unwrap();
+    let b: Board = Board::from_str("1675655444").unwrap();
     assert!(b.check_move_for_win(3));
     assert!(!b.check_move_for_win(5));
 }
