@@ -97,7 +97,7 @@ criterion_group!{
     middle_medium_boards_bench,
     begin_easy_boards_bench,
     begin_medium_boards_bench,
-    //begin_hard_boards_bench
+    begin_hard_boards_bench
 }
 
 criterion_main!(benches

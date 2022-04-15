@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, binary_heap::{self, BinaryHeap}};
+
+use priority_queue::PriorityQueue;
 
 use super::board;
 pub struct Solver {
@@ -17,18 +19,25 @@ impl Solver {
     }
     pub fn negamax(&mut self, board : board::Board, alpha : i32, beta : i32) -> i32 {
         assert!(alpha < beta);
+        assert!(!board.can_win_next());
         self.node_count = self.node_count + 1;
         let mut alpha = alpha;
         let mut beta = beta;
         
-        if board.nr_moves == board::COL_COUNT as u32 * board::ROW_COUNT as u32 {
+
+        let possible = board.possible_non_loosing_moves();
+        if possible == 0 {
+            return -(board::COL_COUNT as i32 * board::ROW_COUNT as i32 - board.nr_moves as i32) / 2;
+        }
+        // Check for drawn game
+        if board.nr_moves >= board::COL_COUNT as u32 * board::ROW_COUNT as u32 - 2 {
             return 0;
         }
-
-        for x in 0..board::COL_COUNT {
-            if board.can_play(x as u32) && board.check_move_for_win(x as u32) {
-                let score = (board::COL_COUNT as i32 * board::ROW_COUNT as i32 + 1 - board.nr_moves as i32) / 2;
-                return score;
+        let min = -(board::COL_COUNT as i32 * board::ROW_COUNT as i32 - 2 - board.nr_moves as i32) / 2;	// lower bound of score as opponent cannot win next move
+        if alpha < min {
+            alpha = min;
+            if alpha >= beta {
+                return alpha;
             }
         }
         let mut max : i32 = ((board::COL_COUNT as i32 * board::ROW_COUNT as i32) - 1 - board.nr_moves as i32) / 2;
@@ -42,25 +51,34 @@ impl Solver {
                 return beta
             };
         }
-        for x in 0..board::COL_COUNT {
-            if board.can_play(self.column_order[x]) {
-                let mut b_copy = board.clone();
-                b_copy.play(self.column_order[x]);
-                let mut score = self.negamax(b_copy, -beta, -alpha);
-                score = -score;
-                if score >= beta {
-                    return score;
-                }
-                if score > alpha {alpha = score;}
+        let mut pqueue = PriorityQueue::new();
+        for i in self.column_order {
+            let position =  possible & board::Board::column_mask(i.into());
+            if position != 0 {
+                let move_score = board.move_score(position);
+                pqueue.push(position, move_score);
             }
+
+        }
+        for next_move in pqueue.into_sorted_iter() {
+            let mut b_copy = board.clone();
+            b_copy.play_bitmove(next_move.0);
+            let score = -self.negamax(b_copy, -beta, -alpha);
+            if score >= beta {
+                return score;
+            }
+            if score > alpha {alpha = score;}
         }
         self.transposition_table.insert(board, alpha - board::MIN_SCORE + 1);
         return alpha;
     }
 
     pub fn solve(&mut self, board : board::Board) -> i32 {
-        let mut min: i32 = -(board::COL_COUNT as i32 *board::ROW_COUNT as i32 - board.nr_moves as i32)/2;
-        let mut max: i32 = (board::COL_COUNT as i32 *board::ROW_COUNT as i32+1 - board.nr_moves as i32)/2;
+        if board.can_win_next() {
+            return (board::COL_COUNT as i32 * board::ROW_COUNT as i32 + 1 - board.nr_moves as i32) / 2;
+        }
+        let mut min: i32 = -(board::COL_COUNT as i32 * board::ROW_COUNT as i32 - board.nr_moves as i32)/2;
+        let mut max: i32 = (board::COL_COUNT as i32 * board::ROW_COUNT as i32 + 1 - board.nr_moves as i32)/2;
         while min < max {
             let mut med = min + (max - min) / 2;
             if med <= 0 && min / 2 < med {

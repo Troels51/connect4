@@ -153,7 +153,83 @@ impl Board {
 
         return false;
     }
+    const fn bottom(width: usize, height : usize) -> u64 {
+        if width == 0 {
+            0
+        }
+        else {
+            Board::bottom(width-1, height) | 1 << (width-1)*(height+1)
+        }
+    }
+    const BOTTOM_MASK: u64 = Board::bottom(COL_COUNT, ROW_COUNT);
+    const BOARD_MASK: u64 = Board::BOTTOM_MASK * ((1 << ROW_COUNT) - 1);
+
+    fn opponent_winning_position(&self) -> u64 { 
+        Board::compute_winning_position(self.current_position ^ self.mask, self.mask)
+    }
+
+    pub fn possible_moves(&self) -> u64 {
+         (self.mask + Board::BOTTOM_MASK) & Board::BOARD_MASK
+    }
+
+    fn compute_winning_position(position: u64, mask: u64) -> u64 {
+        // vertical;
+        let mut r: u64 = (position << 1) & (position << 2) & (position << 3);
+        //horizontal
+        let mut p : u64 = (position << (ROW_COUNT+1)) & (position << 2*(ROW_COUNT+1));
+        r |= p & (position << 3 * (ROW_COUNT + 1));
+        r |= p & (position >> (ROW_COUNT+1));
+        p >>= 3 * (ROW_COUNT + 1);
+        r |= p & (position << (ROW_COUNT+1));
+        r |= p & (position >> 3*(ROW_COUNT+1));
+
+        //diagonal 1
+        p = (position << ROW_COUNT) & (position << 2*ROW_COUNT);
+        r |= p & (position << 3*ROW_COUNT);
+        r |= p & (position >> ROW_COUNT);
+        p >>= 3*ROW_COUNT;
+        r |= p & (position << ROW_COUNT);
+        r |= p & (position >> 3*ROW_COUNT);
+
+        //diagonal 2
+        p = (position << (ROW_COUNT+2)) & (position << 2*(ROW_COUNT+2));
+        r |= p & (position << 3*(ROW_COUNT+2));
+        r |= p & (position >> (ROW_COUNT+2));
+        p >>= 3*(ROW_COUNT+2);
+        r |= p & (position << (ROW_COUNT+2));
+        r |= p & (position >> 3*(ROW_COUNT+2));
+
+        r & (Board::BOARD_MASK ^ mask)
+    }
+
+    pub fn possible_non_loosing_moves(&self) -> u64 {
+        assert!(!self.can_win_next());
+        let mut possible_mask = self.possible_moves();
+        let opponent_win = self.opponent_winning_position();
+        let forced_moves = possible_mask & opponent_win;
+        if forced_moves != 0 {
+            if forced_moves & (forced_moves - 1) != 0 {
+                return 0;
+            }
+            else { 
+                possible_mask = forced_moves;
+            }
+        }
+        possible_mask & !(opponent_win >> 1)
+    }
+
+    pub fn can_win_next(&self) -> bool {
+        self.winning_position() & self.possible_moves() != 0
+    }
+
+    fn winning_position(&self) -> u64 {
+        Board::compute_winning_position(self.current_position, self.mask)
+    }
+    pub fn move_score(&self, new_move: u64) -> i32 {
+        Board::compute_winning_position(self.current_position | new_move, self.mask).count_ones() as i32
+    }
 }
+
 
 impl Board {
     pub fn new() -> Board {
@@ -174,12 +250,16 @@ impl Board {
                     ((self.mask + Board::bottom_mask(column)) & Board::column_mask(column));
         Board::alignment(pos)
     }
-    pub fn play(&mut self, column: u32) -> () {
-        assert!(column < COL_COUNT as u32);
+    pub fn play_bitmove(&mut self, new_move: u64) {
+        assert_eq!(new_move.count_ones(), 1, "Move should only contain 1 one");
         self.current_position ^= self.mask;
-        self.mask |= self.mask + Board::bottom_mask(column);
+        self.mask |= new_move;
         self.nr_moves = self.nr_moves + 1;
         self.current_player = !self.current_player;
+    }   
+    pub fn play(&mut self, column: u32) -> () {
+        assert!(column < COL_COUNT as u32);
+        self.play_bitmove(self.mask + Board::bottom_mask(column) & Board::column_mask(column));
     }
     fn pos_to_state(&self, column: u32, row: u32) -> State
     {

@@ -1,0 +1,25 @@
+Iterative deepening:
+end_easy_boards_bench
+    time:   [9.4319 ms 10.333 ms 11.525 ms]
+middle_easy_boards_bench                                       
+    time:   [11.048 ms 11.376 ms 12.060 ms]
+middle_medium_boards_bench                                                                          
+    time:   [52.451 s 52.930 s 53.375 s]
+begin_easy_boards_bench
+    time:   [18.268 s 18.395 s 18.516 s]
+begin_medium_boards_bench
+    time:   [18.240 s 18.341 s 18.434 s]
+
+
+Better move ordering
+end_easy_boards_bench
+    time:   [21.633 ms 22.108 ms 22.668 ms]
+middle_easy_boards_bench                                                                           
+    time:   [31.347 ms 32.340 ms 34.098 ms]
+middle_medium_boards_bench                                                                          
+    time:   [41.091 s 41.340 s 41.549 s]
+begin_easy_boards_bench   
+    time: [3.7220 s 3.7524 s 3.7829 s]
+begin_medium_boards_bench                                                                          
+    time:   [3.7556 s 3.7948 s 3.8345 s]
+
