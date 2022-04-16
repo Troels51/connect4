@@ -19,7 +19,19 @@ middle_easy_boards_bench
 middle_medium_boards_bench                                                                          
     time:   [41.091 s 41.340 s 41.549 s]
 begin_easy_boards_bench   
-    time: [3.7220 s 3.7524 s 3.7829 s]
+    time:   [3.7220 s 3.7524 s 3.7829 s]
 begin_medium_boards_bench                                                                          
     time:   [3.7556 s 3.7948 s 3.8345 s]
+
+Lower bound transposition table
+end_easy_boards_bench
+   time:   [22.938 ms 23.221 ms 23.581 ms]
+middle_easy_boards_bench                                                         
+    time:   [23.867 ms 24.372 ms 24.624 ms]
+middle_medium_boards_bench
+    time:   [35.813 s 36.248 s 36.724 s]
+begin_easy_boards_bench
+    time:   [3.3077 s 3.3459 s 3.3786 s]
+begin_medium_boards_bench
+    time:   [3.3499 s 3.3753 s 3.4071 s]
 

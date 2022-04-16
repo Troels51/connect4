@@ -8,14 +8,16 @@ use super::board;
 pub struct Solver {
     node_count: u32,
     column_order: [u32; board::COL_COUNT],
-    transposition_table: HashMap<board::Board, i32>,
+    upper_transposition_table: HashMap<board::Board, i32>,
+    lower_transposition_table: HashMap<board::Board, i32>,
 }
 impl Solver {
     pub fn new() -> Solver {
         Solver {
             node_count: 0,
             column_order: [3, 4, 2, 5, 1, 6, 0],
-            transposition_table: HashMap::new(),
+            upper_transposition_table: HashMap::new(),
+            lower_transposition_table: HashMap::new(),
         }
     }
     pub fn negamax(&mut self, board: board::Board, alpha: i32, beta: i32) -> i32 {
@@ -34,7 +36,7 @@ impl Solver {
         if board.nr_moves >= board::COL_COUNT as u32 * board::ROW_COUNT as u32 - 2 {
             return 0;
         }
-        let min =
+        let mut min =
             -(board::COL_COUNT as i32 * board::ROW_COUNT as i32 - 2 - board.nr_moves as i32) / 2; // lower bound of score as opponent cannot win next move
         if alpha < min {
             alpha = min;
@@ -44,10 +46,25 @@ impl Solver {
         }
         let mut max: i32 =
             ((board::COL_COUNT as i32 * board::ROW_COUNT as i32) - 1 - board.nr_moves as i32) / 2;
-        if let Some(val) = self.transposition_table.get(&board) {
-            max = val + board::MIN_SCORE - 1;
+        if let Some(val) = self.upper_transposition_table.get(&board) {
+            max = *val;
+            if beta > max {
+                beta = max;
+                if alpha >= beta {
+                    return alpha;
+                }
+            }
         }
-
+        if let Some(val) = self.lower_transposition_table.get(&board) {
+            min = *val;
+            if alpha < min {
+                alpha = min;
+                if alpha >= beta { 
+                    return beta;
+                }
+            }
+        }
+        
         if beta > max {
             beta = max;
             if alpha >= beta {
@@ -67,14 +84,15 @@ impl Solver {
             b_copy.play_bitmove(next_move.0);
             let score = -self.negamax(b_copy, -beta, -alpha);
             if score >= beta {
+                self.lower_transposition_table.insert(board, score);
                 return score;
             }
             if score > alpha {
                 alpha = score;
             }
         }
-        self.transposition_table
-            .insert(board, alpha - board::MIN_SCORE + 1);
+        self.upper_transposition_table
+            .insert(board, alpha);
         alpha
     }
 
